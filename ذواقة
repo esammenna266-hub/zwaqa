@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> توصيل الطعام</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #FF6B35;
+            --secondary: #FFA500;
+            --dark: #2D3436;
+            --light: #F5F5F5;
+            --success: #00B894;
+            --danger: #E17055;
+            --white: #FFFFFF;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: var(--light);
+            max-width: 500px;
+            margin: 0 auto;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            min-height: 100vh;
+        }
+        
+        /* شريط التنقل */
+        .navbar {
+            background: var(--white);
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #eee;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .location {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .location i {
+            color: var(--primary);
+        }
+        
+        .cart-icon {
+            position: relative;
+            font-size: 20px;
+            color: var(--dark);
+        }
+        
+        .cart-count {
+            position: absolute;
+            top: -8px;
+            left: -8px;
+            background: var(--primary);
+            color: white;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* شريط البحث */
+        .search-bar {
+            padding: 15px;
+            background: var(--white);
+            margin: 10px;
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .search-bar input {
+            border: none;
+            outline: none;
+            flex: 1;
+            font-size: 16px;
+            background: transparent;
+        }
+        
+        /* الفئات */
+        .categories {
+            padding: 15px;
+            overflow-x: auto;
+            white-space: nowrap;
+            margin-bottom: 20px;
+        }
+        
+        .category-item {
+            display: inline-block;
+            text-align: center;
+            margin-left: 20px;
+            cursor: pointer;
+        }
+        
+        .category-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--white);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 8px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+        
+        .category-item.active .category-icon {
+            background: var(--primary);
+            color: white;
+            transform: scale(1.1);
+        }
+        
+        .category-name {
+            font-size: 14px;
+            color: var(--dark);
+        }
+        
+        /* بطاقات الطعام */
+        .food-grid {
+            padding: 0 15px 80px 15px;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .see-all {
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 14px;
+        }
+        
+        .food-card {
+            background: var(--white);
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+            transition: transform 0.3s;
+        }
+        
+        .food-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .food-image {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+        
+        .food-info {
+            padding: 15px;
+        }
+        
+        .food-title {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+        
+        .food-description {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+        
+        .food-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .food-price {
+            color: var(--primary);
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        .food-rating {
+            color: #FFD700;
+            font-size: 14px;
+        }
+        
+        .add-to-cart {
+            width: 100%;
+            padding: 12px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .add-to-cart:hover {
+            background: var(--secondary);
+        }
+        
+        /* شريط التنقل السفلي */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--white);
+            display: flex;
+            justify-content: space-around;
+            padding: 15px 0;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: #666;
+        }
+        
+        .nav-item.active {
+            color: var(--primary);
+        }
+        
+        .nav-icon {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+        
+        .nav-text {
+            font-size: 12px;
+        }
+        
+        /* صفحة تتبع الطلب */
+        .tracking-container {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+            padding: 20px;
+        }
+        
+        .back-button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .order-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .order-number {
+            background: rgba(255,255,255,0.2);
+            padding: 8px 20px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+        
+        .timeline {
+            position: relative;
+            padding-right: 40px;
+            margin: 40px 0;
+        }
+        
+        .timeline::before {
+            content: '';
+            position: absolute;
+            right: 15px;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .timeline-step {
+            display: flex;
+            margin-bottom: 40px;
+            position: relative;
+        }
+        
+        .step-marker {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: white;
+            border: 3px solid rgba(255,255,255,0.3);
+            position: absolute;
+            right: 0;
+            transform: translateX(50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+        }
+        
+        .timeline-step.active .step-marker {
+            background: var(--success);
+            border-color: white;
+            color: white;
+        }
+        
+        .timeline-step.completed .step-marker {
+            background: white;
+            color: var(--success);
+        }
+        
+        .step-content {
+            flex: 1;
+            margin-right: 40px;
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .step-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .step-time {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+        
+        .eta-card {
+            background: white;
+            color: #333;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            margin: 30px 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .countdown {
+            font-size: 36px;
+            font-weight: bold;
+            color: #667eea;
+            margin: 10px 0;
+            font-family: monospace;
+        }
+        
+        .driver-card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            backdrop-filter: blur(10px);
+        }
+        
+        .driver-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .driver-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: #333;
+        }
+        
+        .contact-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .contact-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .call-btn {
+            background: var(--success);
+            color: white;
+        }
+        
+        .message-btn {
+            background: var(--primary);
+            color: white;
+        }
+        
+        /* الصفحات المخفية */
+        .page {
+            display: none;
+        }
+        
+        .page.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <!-- الصفحة الرئيسية -->
+    <div id="homePage" class="page active">
+        <nav class="navbar">
+            <div class="location">
+                <i class="fas fa-map-marker-alt"></i>
+                <span>القاهرة /مصر </span>
+            </div>
+            <div class="cart-icon" onclick="showPage('cartPage')">
+                <i class="fas fa-shopping-cart"></i>
+                <span class="cart-count">3</span>
+            </div>
+        </nav>
+        
+        <div class="search-bar">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="ابحث عن طعامك المفضل...">
+        </div>
+        
+        <div class="categories">
+            <div class="category-item active" onclick="filterCategory('all')">
+                <div class="category-icon">🍔</div>
+                <div class="category-name">الكل</div>
+            </div>
+            <div class="category-item" onclick="filterCategory('burger')">
+                <div class="category-icon">🍔</div>
+                <div class="category-name">برجر</div>
+            </div>
+            <div class="category-item" onclick="filterCategory('pizza')">
+                <div class="category-icon">🍕</div>
+                <div class="category-name">بيتزا</div>
+            </div>
+            <div class="category-item" onclick="filterCategory('drinks')">
+                <div class="category-icon">☕</div>
+                <div class="category-name">مشروبات</div>
+            </div>
+            <div class="category-item" onclick="filterCategory('dessert')">
+                <div class="category-icon">🍰</div>
+                <div class="category-name">حلويات</div>
+            </div>
+        </div>
+        
+        <div class="food-grid">
+            <div class="section-title">
+                <span>الأكثر طلباً 🔥</span>
+                <a href="#" class="see-all">عرض الكل</a>
+            </div>
+            
+            <div class="food-card" onclick="showFoodDetails(1)">
+                <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" 
+                     alt="برجر كلاسيك" class="food-image">
+                <div class="food-info">
+                    <h3 class="food-title">برجر كلاسيك</h3>
+                    <p class="food-description">برجر لحم بقري مع جبنة وخس وطماطم وصلصة خاصة</p>
+                    <div class="food-meta">
+                        <span class="food-price">25.99 ج</span>
+                        <span class="food-rating">⭐ 4.8 (120)</span>
+                    </div>
+                    <button class="add-to-cart" onclick="addToCart(event, 1)">+ إضافة إلى السلة</button>
+                </div>
+            </div>
+            
+            <div class="food-card" onclick="showFoodDetails(2)">
+                <img src="https://images.unsplash.com/photo-1574071318508-1cdbab80d002?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" 
+                     alt="بيتزا مارغريتا" class="food-image">
+                <div class="food-info">
+                    <h3 class="food-title">بيتزا مارغريتا</h3>
+                    <p class="food-description">جبنة موزاريلا وطماطم طازجة وأوريجانو</p>
+                    <div class="food-meta">
+                        <span class="food-price">35.00 ج</span>
+                        <span class="food-rating">⭐ 4.9 (95)</span>
+                    </div>
+                    <button class="add-to-cart" onclick="addToCart(event, 2)">+ إضافة إلى السلة</button>
+                </div>
+            </div>
+        </div>
+        
+        <nav class="bottom-nav">
+            <a href="#" class="nav-item active" onclick="showPage('homePage')">
+                <div class="nav-icon">🏠</div>
+                <div class="nav-text">الرئيسية</div>
+            </a>
+            <a href="#" class="nav-item" onclick="showPage('ordersPage')">
+                <div class="nav-icon">📋</div>
+                <div class="nav-text">طلباتي</div>
+            </a>
+            <a href="#" class="nav-item" onclick="showPage('trackingPage')">
+                <div class="nav-icon">📍</div>
+                <div class="nav-text">تتبع</div>
+            </a>
+            <a href="#" class="nav-item" onclick="showPage('profilePage')">
+                <div class="nav-icon">👤</div>
+                <div class="nav-text">حسابي</div>
+            </a>
+        </nav>
+    </div>
+    
+    <!-- صفحة تتبع الطلب -->
+    <div id="trackingPage" class="page">
+        <div class="tracking-container">
+            <button class="back-button" onclick="showPage('homePage')">
+                <i class="fas fa-arrow-right"></i>
+            </button>
+            
+            <div class="order-header">
+                <div class="order-number">الطلب #FD-2024-1254</div>
+                <h2>تتبع طلبك</h2>
+                <p>برجر كلاسيك ×2 • بيتزا مارغريتا ×1</p>
+            </div>
+            
+            <div class="timeline">
+                <div class="timeline-step completed">
+                    <div class="step-marker">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <div class="step-content">
+                        <div class="step-title">تم تأكيد الطلب</div>
+                        <div class="step-time">10:30 صباحاً</div>
+                    </div>
+                </div>
+                
+                <div class="timeline-step completed">
+                    <div class="step-marker">
+                        <i class="fas fa-utensils"></i>
+                    </div>
+                    <div class="step-content">
+                        <div class="step-title">قيد التحضير</div>
+                        <div class="step-time">10:35 صباحاً</div>
+                    </div>
+                </div>
+                
+                <div class="timeline-step active">
+                    <div class="step-marker">
+                        <i class="fas fa-motorcycle"></i>
+                    </div>
+                    <div class="step-content">
+                        <div class="step-title">في الطريق إليك</div>
+                        <div class="step-time">10:50 صباحاً</div>
+                    </div>
+                </div>
+                
+                <div class="timeline-step">
+                    <div class="step-marker">
+                        <i class="fas fa-home"></i>
+                    </div>
+                    <div class="step-content">
+                        <div class="step-title">تم التسليم</div>
+                        <div class="step-time">--:--</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="eta-card">
+                <div>الوقت المتوقع للتسليم</div>
+                <div class="countdown" id="countdownTimer">15:24</div>
+                <div>متبقي على وصول طلبك</div>
+            </div>
+            
+            <div class="driver-card">
+                <div class="driver-info">
+                    <div class="driver-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div>
+                        <h3>أحمد محمد</h3>
+                        <p>⭐ 4.7 (124 تقييم)</p>
+                    </div>
+                </div>
+                
+                <div class="contact-buttons">
+                    <button class="contact-btn call-btn" onclick="callDriver()">
+                        <i class="fas fa-phone"></i> اتصل
+                    </button>
+                    <button class="contact-btn message-btn" onclick="messageDriver()">
+                        <i class="fas fa-comment"></i> رسالة
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- صفحة الطلبات -->
+    <div id="ordersPage" class="page">
+        <nav class="navbar">
+            <button class="back-button" onclick="showPage('homePage')">
+                <i class="fas fa-arrow-right"></i>
+            </button>
+            <h3>طلباتي</h3>
+            <div></div>
+        </nav>
+        
+        <div style="padding: 20px;">
+            <div class="food-card">
+                <div class="food-info">
+                    <h3>الطلب #1254</h3>
+                    <p>برجر كلاسيك ×2 • بيتزا مارغريتا ×1</p>
+                    <div class="food-meta">
+                        <span class="food-price">85.50 ج</span>
+                        <span style="color: var(--success);">✅ منجز</span>
+                    </div>
+                    <button class="add-to-cart" onclick="showPage('trackingPage')">تتبع الطلب</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- صفحة الملف الشخصي -->
+    <div id="profilePage" class="page">
+        <nav class="navbar">
+            <button class="back-button" onclick="showPage('homePage')">
+                <i class="fas fa-arrow-right"></i>
+            </button>
+            <h3>حسابي</h3>
+            <div></div>
+        </nav>
+        
+        <div style="padding: 20px; text-align: center;">
+            <div style="width: 100px; height: 100px; background: #ddd; border-radius: 50%; margin: 20px auto; display: flex; align-items: center; justify-content: center; font-size: 40px;">
+                👤
+            </div>
+            <h3>محمد أحمد</h3>
+            <p>mohamed@example.com</p>
+            
+            <div style="margin-top: 30px;">
+                <button class="add-to-cart" style="margin-bottom: 10px;">📋 طلباتي</button>
+                <button class="add-to-cart" style="margin-bottom: 10px; background: #6C757D;">⚙️ الإعدادات</button>
+                <button class="add-to-cart" style="background: var(--danger);">🚪 تسجيل خروج</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- صفحة السلة -->
+    <div id="cartPage" class="page">
+        <nav class="navbar">
+            <button class="back-button" onclick="showPage('homePage')">
+                <i class="fas fa-arrow-right"></i>
+            </button>
+            <h3>سلة المشتريات</h3>
+            <div></div>
+        </nav>
+        
+        <div style="padding: 20px;">
+            <div class="food-card">
+                <div class="food-info">
+                    <h3>برجر كلاسيك ×2</h3>
+                    <div class="food-meta">
+                        <span class="food-price">51.98 ج</span>
+                        <button onclick="removeFromCart(1)" style="background: var(--danger); color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">حذف</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="background: white; padding: 20px; border-radius: 15px; margin-top: 20px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                    <span>المجموع الفرعي</span>
+                    <span>51.98 ر.س</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+                    <span>رسوم التوصيل</span>
+                    <span>10.00 ج</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 18px; border-top: 1px solid #eee; padding-top: 10px;">
+                    <span>الإجمالي</span>
+                    <span style="color: var(--primary);">61.98 ج</span>
+                </div>
+                
+                <button class="add-to-cart" style="margin-top: 20px;" onclick="checkout()">
+                    <i class="fas fa-shopping-bag"></i> اتمام الشراء
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // دالة تبديل الصفحات
+        function showPage(pageId) {
+            // إخفاء كل الصفحات
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            // إزالة النشاط من عناصر التنقل
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // إظهار الصفحة المطلوبة
+            document.getElementById(pageId).classList.add('active');
+            
+            // تحديث العنصر النشط في التنقل السفلي
+            if (pageId === 'homePage') {
+                document.querySelector('.nav-item').classList.add('active');
+            }
+        }
+        
+        // دالة إضافة إلى السلة
+        function addToCart(event, itemId) {
+            event.stopPropagation();
+            alert("تم إضافة المنتج إلى السلة!");
+            
+            // تحديث عداد السلة
+            const cartCount = document.querySelector('.cart-count');
+            let count = parseInt(cartCount.textContent);
+            cartCount.textContent = count + 1;
+        }
+        
+        // دالة إزالة من السلة
+        function removeFromCart(itemId) {
+            const cartCount = document.querySelector('.cart-count');
+            let count = parseInt(cartCount.textContent);
+            cartCount.textContent = Math.max(0, count - 1);
+            showPage('homePage');
+        }
+        
+        // دالة الاتصال بالسائق
+        function callDriver() {
+            alert("📞 جاري الاتصال بالسائق أحمد...");
+        }
+        
+        // دالة المراسلة
+        function messageDriver() {
+            alert("📱 يمكنك مراسلة السائق عبر التطبيق");
+        }
+        
+        // دالة الدفع
+        function checkout() {
+            alert("🚀 جاري تحويلك إلى صفحة الدفع...");
+        }
+        
+        // فلترة الفئات
+        function filterCategory(category) {
+            document.querySelectorAll('.category-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.target.closest('.category-item').classList.add('active');
+            alert(`عرض منتجات: ${category}`);
+        }
+        
+        // عرض تفاصيل الطعام
+        function showFoodDetails(foodId) {
+            alert(`تفاصيل المنتج #${foodId}\n\nستفتح صفحة التفاصيل هنا`);
+        }
+        
+        // مؤقت العد التنازلي
+        function startCountdown() {
+            let minutes = 15;
+            let seconds = 24;
+            const timerElement = document.getElementById('countdownTimer');
+            
+            setInterval(() => {
+                if (seconds === 0) {
+                    if (minutes === 0) {
+                        timerElement.textContent = "00:00";
+                        return;
+                    }
+                    minutes--;
+                    seconds = 59;
+                } else {
+                    seconds--;
+                }
+                
+                timerElement.textContent = 
+                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }, 1000);
+        }
+        
+        // تشغيل المؤقت عند تحميل الصفحة
+        document.addEventListener('DOMContentLoaded', function() {
+            startCountdown();
+        });
+    </script>
+</body>
+</html>
